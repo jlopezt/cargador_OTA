@@ -1,0 +1,289 @@
+<HTML>
+	<HEAD><TITLE>OTA Loader </TITLE></HEAD>
+
+	<style>
+	@media only screen and (min-width: 850px) {
+		body {
+			 display: flex;
+		}
+		 #content-right {
+			 margin-left: 10px;
+		}  
+	}
+	body {
+	     font-family: Arial, Helvetica, sans-serif;
+	     background: #181818;
+	     color: #EFEFEF;
+	     font-size: 16px;
+	}
+	 #content-left {
+	     max-width: 400px;
+		 flex: 1;
+	}
+	 #content-right {
+	     max-width: 400px;
+		 flex: 1;
+	}
+	 #stream {
+	     width: 100%;
+	}
+	 .status-display {
+	     height: 25px;
+	     border: none;
+	     padding: 10px;
+	     font: 18px/22px sans-serif;
+	     margin-bottom: 10px;
+	     border-radius: 5px;
+	     background: green;
+	     text-align: center;
+	}
+	 #person {
+	     width:100%;
+	     height: 25px;
+	     border: none;
+	     padding: 20px 10px;
+	     font: 18px/22px sans-serif;
+	     margin-bottom: 10px;
+	     border-radius: 5px;
+	     resize: none;
+	     box-sizing: border-box;
+	}
+	 button {
+	     display: block;
+	     margin: 5px 0;
+	     padding: 0 12px;
+	     border: 0;
+	     width: 48%;
+	     line-height: 28px;
+	     cursor: pointer;
+	     color: #fff;
+	     background: #ff3034;
+	     border-radius: 5px;
+	     font-size: 16px;
+	     outline: 0;
+	}
+	 .buttons {
+	     height:40px;
+	}
+	 button:hover {
+	     background: #ff494d;
+	}
+	 button:active {
+	     background: #f21c21;
+	}
+	 button:disabled {
+	     cursor: default;
+	     background: #a0a0a0;
+	}
+	 .left {
+	     float: left;
+	}
+	 .right {
+	     float: right;
+	}
+	 .image-container {
+	     position: relative;
+	}
+	 .stream {
+	     max-width: 400px;
+	}
+	 ul {
+	     list-style: none;
+	     padding: 5px;
+	     margin:0;
+	}
+	 li {
+	     padding: 5px 0;
+	}
+	 .delete {
+	     background: #ff3034;
+	     border-radius: 100px;
+	     color: #fff;
+	     text-align: center;
+	     line-height: 18px;
+	     cursor: pointer;
+	}
+	 h3 {
+	     margin-bottom: 3px;
+	}
+	</style>
+
+	<BODY>
+
+		<div id="content-right">
+			<h1><a href="../" target="_self">OTA Loader</a><br></h1>
+		  <div class="buttons">
+		    <button id="button-leeTabla" class="left">Lee Tabla</button>
+		    <button id="button-XXX" class="right">XXX</button>    
+		  </div>
+		
+			<TABLE id="Particiones" border="1">
+				<CAPTION>Particiones de memoria</CAPTION>
+				<TRHEAD>
+					<TR><TD>Nombre</TD><TD>Tipo</TD><TD>Subtipo</TD><TD>Direccion</TD><TD>TamaÃ±o</TD><TD>Encriptado</TD></TR>
+				</TRHEAD>
+				<TBODY id="body">
+<!--
+					<TR><TD><a href="setNextBoot?p=Loader" target="_self">Loader</a></TD><TD>app</TD><TD>ota_16</TD><TD>65536</TD><TD>1048576</TD><TD>No</TD></TR>
+					<TR><TD><a href="setNextBoot?p=app" target="_self">app</a></TD><TD>app</TD><TD>ota_17</TD><TD>1114112</TD><TD>2883584</TD><TD>No</TD></TR>
+-->				
+				</TBODY>
+			</TABLE>
+			<BR><BR>
+			Particion en ejecucion: Loader
+			<BR>
+			Particion del proximo arranque: Loader
+			<BR>
+			Particion proximo update: app
+			<BR>
+			<div class="status-display"> <span id="progresoOTA"></span> </div>
+		</div>
+
+		<script>
+	  document.addEventListener("DOMContentLoaded", function(event) 
+	  	{
+		  var baseHost = document.location.origin;
+		  var streamUrl = baseHost + ":81";
+		  const WS_URL = "ws://" + window.location.host + ":88";
+		  //const WS_URL = "ws://10.68.0.51:88";
+		  const ws = new WebSocket(WS_URL);
+	
+		  const leeTablaButton = document.getElementById("button-leeTabla");
+			const progresoOTA = document.getElementById("progresoOTA");
+			
+			ws.onopen = () => 
+				{
+		    console.log(`Connected to ${WS_URL}`);
+ 		  	console.log('mando el mensaje pidiendo particiones');
+		    ws.send("Particiones");
+			  };
+		  
+		  ws.onmessage = message => 
+		  	{
+		    if (typeof message.data === "string") 
+		    	{
+		      console.log('se ha recibido: %s',message.data);
+		      if (message.data.substr(0, 3) == "OTA") 
+		      	{
+		        
+		      	} 
+		      else if (message.data.substr(0, 11) == "particiones") 
+		      	{
+		        genera_TRs(message.data);
+		      	} 
+		      else 
+		      	{
+		        document.getElementById("progresoOTA").innerHTML = message.data;
+		      	}
+		    	}
+		  	};
+		  	
+		  leeTablaButton.onclick = () => 
+		  	{
+		  	console.log('Pido que se cree latabla');	
+		  	genera_tabla();	
+		  	console.log('mando el mensaje pidiendo particiones');
+	    	ws.send("Particiones");
+	  		};
+	  	});//el del document.addEventListener...
+  	
+		function genera_tabla() 
+			{
+		  // Obtener la referencia del elemento tabla y crea un elemento <tbody>
+		 	const tabla = document.getElementById("Particiones");
+		  var tblBody = document.createElement("tbody");
+		 
+		 	//Creo la fila de cabecera
+		 	var hilera = document.createElement("tr");
+		 	
+      var celda = document.createElement("td");
+      var textoCelda = document.createTextNode("Nombre");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+		 	
+      var celda = document.createElement("td");
+      var textoCelda = document.createTextNode("Tipo");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+		 	
+      var celda = document.createElement("td");
+      var textoCelda = document.createTextNode("Subtipo");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+		 	
+      var celda = document.createElement("td");
+      var textoCelda = document.createTextNode("Direccion");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+		 	
+      var celda = document.createElement("td");
+      var textoCelda = document.createTextNode("Tamaño");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+		 	
+      var celda = document.createElement("td");
+      var textoCelda = document.createTextNode("Encriptacion");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+		 	
+		  // posiciona el <tbody> debajo del elemento <table>
+		  tabla.appendChild(tblBody);
+
+		  // modifica el atributo "border" de la tabla y lo fija a "2";
+		  tabla.setAttribute("border", "2");
+			}
+			
+		function genera_TRs(cadena)
+			{
+			//prepara las cadenas
+			var arrayDeCadenas = cadena.split("|");
+			//La primera cadena es "particiones", esa no cuenta
+			for(var i=1;i<arrayDeCadenas.length;i++)
+				{
+				console.log("Cadena " + i + ": " + arrayDeCadenas[i]);
+				genera_TR(arrayDeCadenas[i]);
+				}
+			}
+					
+		function genera_TR(cadena) 
+			{
+			//prepara las cadenas
+			var arrayDeCadenas = cadena.split(";");
+			var celdas=6;
+			if(arrayDeCadenas.length<6) celdas=arrayDeCadenas.length;
+
+			//Recupera el tbody	
+		  var tblBody = document.getElementById("body");
+		  				
+	    // Crea las hileras de la tabla
+	    var hilera = document.createElement("tr");
+		 
+	    for (var j = 0; j < celdas; j++) 
+	    	{
+	      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+	      // texto sea el contenido de <td>, ubica el elemento <td> al final
+	      // de la hilera de la tabla
+				console.log("Cadena " + j + ": " + arrayDeCadenas[j]);
+
+	      var celda = document.createElement("td");
+	      var textoCelda = document.createTextNode(arrayDeCadenas[j]);
+	      
+	      celda.appendChild(textoCelda);
+	      hilera.appendChild(celda);
+
+	      if(j==0)
+	      	{
+	      	
+	      	//var enlace = document.createElement("a");
+	      	celda.innerHTML='<a href="setNextBoot?p=' + arrayDeCadenas[j] + '" target="_self">' + arrayDeCadenas[j] + '</a>';
+	      	}
+	    	}
+	 
+	    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+	    tblBody.appendChild(hilera);
+			}
+			
+		</script>
+		
+	</BODY>
+</HTML>
