@@ -4,7 +4,5 @@
   "wifiNet": "255.255.0.0",
   "wifiDNS1": "8.8.8.8",
   "wifiDNS2": "8.8.4.4",
-  "wifi": [
-    {"ssid": "BASE1" ,"password": "11223344556677889900abcdef"}
-    ]
+  "wifi": [{"ssid": "BASE1" ,"password": "11223344556677889900abcdef"}]
 }

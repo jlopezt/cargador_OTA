@@ -1,0 +1,10 @@
+{
+    "intervaloReconocimiento":10000,
+    "confirm_times":5,
+    "face_id_nodes":[
+      {"nombre":"Sara","w":1,"h":1,"c":512,"n":1,"stride":512},
+      {"nombre":"Diego","w":1,"h":1,"c":512,"n":1,"stride":512},
+      {"nombre":"Jose","w":1,"h":1,"c":512,"n":1,"stride":512},
+      {"nombre":"Paco","w":1,"h":1,"c":512,"n":1,"stride":512}
+    ]
+  }

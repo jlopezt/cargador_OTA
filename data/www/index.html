@@ -1,0 +1,384 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESP32 Captura de caras con nombre</title>
+<style>
+@media only screen and (min-width: 850px) {
+	body {
+		 display: flex;
+	}
+	 #content-right {
+		 margin-left: 10px;
+	}  
+}
+body {
+     font-family: Arial, Helvetica, sans-serif;
+     background: #181818;
+     color: #EFEFEF;
+     font-size: 16px;
+}
+ #content-left {
+     max-width: 400px;
+	 flex: 1;
+}
+ #content-right {
+     max-width: 400px;
+	 flex: 1;
+}
+ #stream {
+     width: 100%;
+}
+ .status-display {
+     height: 25px;
+     border: none;
+     padding: 10px;
+     font: 18px/22px sans-serif;
+     margin-bottom: 10px;
+     border-radius: 5px;
+     background: green;
+     text-align: center;
+}
+ #person {
+     width:100%;
+     height: 25px;
+     border: none;
+     padding: 20px 10px;
+     font: 18px/22px sans-serif;
+     margin-bottom: 10px;
+     border-radius: 5px;
+     resize: none;
+     box-sizing: border-box;
+}
+ button {
+     display: block;
+     margin: 5px 0;
+     padding: 0 12px;
+     border: 0;
+     width: 48%;
+     line-height: 28px;
+     cursor: pointer;
+     color: #fff;
+     background: #ff3034;
+     border-radius: 5px;
+     font-size: 16px;
+     outline: 0;
+}
+ .buttons {
+     height:40px;
+}
+ button:hover {
+     background: #ff494d;
+}
+ button:active {
+     background: #f21c21;
+}
+ button:disabled {
+     cursor: default;
+     background: #a0a0a0;
+}
+ .left {
+     float: left;
+}
+ .right {
+     float: right;
+}
+ .image-container {
+     position: relative;
+}
+ .stream {
+     max-width: 400px;
+}
+ ul {
+     list-style: none;
+     padding: 5px;
+     margin:0;
+}
+ li {
+     padding: 5px 0;
+}
+ .delete {
+     background: #ff3034;
+     border-radius: 100px;
+     color: #fff;
+     text-align: center;
+     line-height: 18px;
+     cursor: pointer;
+}
+ h3 {
+     margin-bottom: 3px;
+}
+
+
+.input-group {
+    display: flex;
+    flex-wrap: nowrap;
+    line-height: 22px;
+    margin: 5px 0
+}
+
+.input-group>label {
+    display: inline-block;
+    padding-right: 10px;
+    min-width: 47%
+}
+
+.input-group input,.input-group select {
+    flex-grow: 1
+}
+
+.switch {
+    display: block;
+    position: relative;
+    line-height: 22px;
+    font-size: 16px;
+    height: 22px
+}
+
+.switch input {
+    outline: 0;
+    opacity: 0;
+    width: 0;
+    height: 0
+}
+
+.slider {
+    width: 50px;
+    height: 22px;
+    border-radius: 22px;
+    cursor: pointer;
+    background-color: grey
+}
+
+.slider,.slider:before {
+    display: inline-block;
+    transition: .4s
+}
+
+.slider:before {
+    position: relative;
+    content: "";
+    border-radius: 50%;
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    top: 3px;
+    background-color: #fff
+}
+
+input:checked+.slider {
+    background-color: #ff3034
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(26px);
+    transform: translateX(26px)
+}
+
+</style>
+</head>
+<body>
+<div id="content-left">
+  <div id="stream-container" class="image-container"> <img id="stream" src=""> </div>
+  <div id="foto-container" class="image-container"> <img id="foto" src=""> </div>
+</div>
+<div id="content-right">
+  <div class="status-display"> <span id="current-status"></span> </div>
+  <div id="person-name">
+    <input id="person" type="text" value="" placeholder="Introduzca el nombre de la cara a capturar">
+  </div>
+  <div class="buttons">
+    <button id="button-stream" class="left">Visualizar</button>
+    <button id="button-capture" class="right" title="Introduzca el nombre de la cara a capturar">Capturar</button>    
+  </div>
+  <div class="people">
+    <h3>Caras capturadas</h3>
+    <ul>
+    </ul>
+  </div>
+  <div class="buttons">
+    <button id="delete_all">Borra todas</button>
+  </div> 
+  <div class="buttons">
+    <button id="button-serialize" class="left">Serialize</button>
+    <button id="button-foto" class="right">Foto</button>    
+  </div>
+  <div class="status-display"> <span id="depurador"></span> </div>
+  
+  <div class="input-group" id="check-recon-group">
+    <label for="check-recon">Activar reconocimiento</label>
+    <div class="switch">
+        <input id="check-recon" type="checkbox" class="default-action" checked="checked">
+        <label class="slider" for="check-recon"></label>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function(event) 
+  {
+  var baseHost = document.location.origin;
+  var streamUrl = baseHost + ":81";
+  const WS_URL = "ws://" + window.location.host + ":88";
+  //var ws = new WebSocket(WS_URL);
+
+  const view = document.getElementById("stream"); //la imagen
+  const viewfoto = document.getElementById("foto"); //Imagen para foto
+  const personFormField = document.getElementById("person"); //Cuadro de texto para escribir el nombre
+  const streamButton = document.getElementById("button-stream"); //Boton Visualizar
+  const captureButton = document.getElementById("button-capture"); //Boton capturar
+  const deleteAllButton = document.getElementById("delete_all"); //Boton borrar todas
+  const serializeButton=document.getElementById("button-serialize"); //Boton Serializar
+  const fotoButton=document.getElementById("button-foto"); //Boton foto
+  const reconocerCheck=document.getElementById("check-recon"); //check para activar/desactivar el reconocimiento
+
+  var flagFoto=false;
+
+  var myVar =setInterval(connect, 5000);
+
+  function connect()
+    {
+    /*
+    0	CONNECTING	Socket has been created. The connection is not yet open.
+    1	OPEN	The connection is open and ready to communicate.
+    2	CLOSING	The connection is in the process of closing.
+    3	CLOSED	The connection is closed or couldn't be opened.
+    */  
+    console.log("Evaluando reconexion...");  
+    if(ws.readyState<2) return;
+
+    console.log(`Reconectando a  ${WS_URL}`);
+    var ws = new WebSocket(WS_URL);
+
+    ws.onopen = () => 
+      {
+      console.log(`Conectando a ${WS_URL}`);
+      ws.send("stream");
+      };
+    
+    ws.onclose = function(e) 
+      {
+      console.log('Socket cerrado.', e.reason);
+      };
+
+    ws.onerror = function(err) 
+      {
+      console.error('Socket error: ', err.message, 'Cerrando el socket');
+      ws.close();
+      };
+    
+    ws.onmessage = message => 
+      {
+      if (typeof message.data === "string") 
+        {
+        console.log('se ha recibido: %s',message.data);
+        if (message.data.substr(0, 8) == "listface") {addFaceToScreen(message.data.substr(9));} 
+        else if (message.data == "delete_faces") {deleteAllFacesFromScreen();} 
+        else if (message.data.substr(0, 10) == "depurador:") {document.getElementById("depurador").innerHTML = message.data;} 
+        else {document.getElementById("current-status").innerHTML = message.data;}
+        }
+      if (message.data instanceof Blob) 
+        {
+        console.log('se han recibido datos binarios');
+        if(flagFoto==true)
+          {       
+          console.log('¡¡¡Es una foto!!!');
+          flagFoto=false;  
+          var urlObject = URL.createObjectURL(message.data);
+          viewfoto.src = urlObject;
+          }
+        else
+          {
+          var urlObject = URL.createObjectURL(message.data);
+          view.src = urlObject;
+          }
+        }
+      }
+    };
+
+  reconocerCheck.onchange = () => 
+    {
+    if(reconocerCheck.checked) 
+      {
+      ws.send("reconoce");
+      console.log('Reconocimiento on');   
+      }
+    else
+      {
+      ws.send("no_reconoce");
+      console.log('Reconocimiento off');   
+      }
+    }
+
+  streamButton.onclick = () => 
+    {
+    ws.send("stream");
+    flagFoto=false;  
+    };
+
+  serializeButton.onclick = () => 
+    {
+    ws.send("serialize");
+    };
+
+  fotoButton.onclick = () => 
+    {
+    ws.send("foto");
+    flagFoto=true;
+    };
+
+  captureButton.onclick = () => 
+    {
+    person_name = document.getElementById("person").value;
+    ws.send("capture:" + person_name);
+    };
+
+  deleteAllButton.onclick = () => 
+    {
+    ws.send("delete_all");
+   };
+  
+  personFormField.onkeyup = () => 
+    {
+    captureButton.disabled = false;
+    };
+
+  function deleteAllFacesFromScreen() 
+    {
+    // deletes face list in browser only
+    const faceList = document.querySelector("ul");
+    while (faceList.firstChild) 
+      {
+      faceList.firstChild.remove();
+      }
+    personFormField.value = "";
+    captureButton.disabled = true;
+    }
+
+  function addFaceToScreen(person_name) 
+    {
+    const faceList = document.querySelector("ul");
+    let listItem = document.createElement("li");
+    let closeItem = document.createElement("span");
+    closeItem.classList.add("delete");
+    closeItem.id = person_name;
+    closeItem.addEventListener("click", function() 
+      {
+      ws.send("remove:" + person_name);
+      });
+    listItem.appendChild(document.createElement("strong")).textContent = person_name;
+    listItem.appendChild(closeItem).textContent = "X";
+    faceList.appendChild(listItem);
+    }
+
+  captureButton.disabled = true;
+  connect();
+  });
+</script>
+</body>
+</html>
+
+

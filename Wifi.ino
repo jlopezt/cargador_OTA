@@ -15,7 +15,7 @@
 #define FALSE 0
 #define MAX_LONG_NOMBRE_DISPOSITIVO 32
 #define WIFI_PORTAL_TIMEOUT 5*60 //5 minutos en segundos
-#define TIME_OUT 30000
+#define TIME_OUT 10000//30000
 #define DELAY 1000
 
 IPAddress wifiIP(0, 0, 0, 0);//0.0.0.0 significa que no hay IP fija
