@@ -33,7 +33,6 @@ void inicializaWebServer(void)
   //decalra las URIs a las que va a responder
   server.on("/", handleRoot); //Responde con la iodentificacion del modulo
       
-  server.on("/test", handleTest);  //URI de test
   server.on("/restart", handleRestart);  //URI de test
   server.on("/info", handleInfo);  //URI de test
   server.on("/particiones", handleParticiones);  //URI de test
@@ -86,23 +85,6 @@ void handleRoot()
   server.send(200, "text/html", cad);
   }
 
-/*********************************************/
-/*                                           */
-/*  Servicio de test                         */
-/*                                           */
-/*********************************************/  
-void handleTest(void)
-  {
-  String cad="";
-
-  cad += cabeceraHTML;
-  
-  cad += "Test OK<br>";
-  cad += pieHTML;
-    
-  server.send(200, "text/html", cad); 
-  }
-  
 /*********************************************/
 /*                                           */
 /*  Reinicia el dispositivo mediante         */
@@ -306,8 +288,6 @@ void handleLeeFichero(void)
 /*********************************************/
 void handleNotFound()
   {
-  if(handleFileRead(server.uri()))return;
-    
   String message = "";
 
   message = "<h1>" + nombre_dispositivo + "<br></h1>";
@@ -455,36 +435,3 @@ void handleListaFicheros(void)
   cad += pieHTML;
   server.send(200, "text/html", cad); 
   }
-
-/**********************************************************************/
-String getContentType(String filename) { // determine the filetype of a given filename, based on the extension
-  if (filename.endsWith(".html")) return "text/html";
-  else if (filename.endsWith(".css")) return "text/css";
-  else if (filename.endsWith(".js")) return "application/javascript";
-  else if (filename.endsWith(".ico")) return "image/x-icon";
-  else if (filename.endsWith(".gz")) return "application/x-gzip";
-  return "text/plain";
-}
-
-bool handleFileRead(String path) 
-  { // send the right file to the client (if it exists)
-  Serial.println("handleFileRead: " + path);
-  
-  if (!path.startsWith("/")) path += "/";
-  path = "/www" + path; //busco los ficheros en el SPIFFS en la carpeta www
-
-  String contentType = getContentType(path);             // Get the MIME type
-  String pathWithGz = path + ".gz";
-  if(existeFichero(pathWithGz) || existeFichero(path))
-    { // If the file exists, either as a compressed archive, or normal
-    if (existeFichero(pathWithGz)) path += ".gz";  // If there's a compressed version available, use the compressed verion
-
-    String contenido="";
-    leeFichero(path, contenido);
-    server.send(200, "text/html", contenido);
-    Serial.println(String("\tSent file: ") + path);
-    return true;
-    }
-  Serial.println(String("\tFile Not Found: ") + path);   // If the file doesn't exist, return false
-  return false;
-  }  

@@ -21,8 +21,6 @@ Funcines que provee al libreria:
   void handle();  //Call this in loop() to run the service
   int getCommand();  //Gets update command type after OTA has started. Either U_FLASH or U_SPIFFS
 **********************************************************************/
-#define NOMBRE_PARTICION_APLICACION "app"
-#define NOMBRE_PARTICION_CARGADOR "Loader"
 
 #include <ArduinoOTA.h>
 #include <esp_ota_ops.h>
@@ -70,7 +68,7 @@ void erroresOTA(ota_error_t error)
   //Sets if the device should be rebooted after successful update. Default true
   //ArduinoOTAClass&/void setRebootOnSuccess(bool reboot);
 
-  ArduinoOTA.setHostname(nombre_dispositivo.c_str());
+  ArduinoOTA.setHostname("loader");//(nombre_dispositivo.c_str());
   ArduinoOTA.setRebootOnSuccess(true);
   ArduinoOTA.setPassword((const char *)"88716");// No authentication by default
 
