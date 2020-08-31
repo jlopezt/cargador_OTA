@@ -79,14 +79,6 @@ boolean recuperaDatosWiFi(boolean debug)
   String cad="";
   if (debug) Serial.printf("Recupero configuracion de archivo...\n");
 
-  //cargo el valores por defecto
-  wifiIP=IPAddress(0,0,0,0);
-  wifiGW=IPAddress(0,0,0,0);
-  wifiNet=IPAddress(0,0,0,0);
-  wifiDNS1=IPAddress(0,0,0,0);
-  wifiDNS2=IPAddress(0,0,0,0);
-  mDNS=NOMBRE_mDNS_CONFIG;
-  
   if(!leeFichero(WIFI_CONFIG_FILE, cad)) 
     {
     //Confgiguracion por defecto
@@ -140,6 +132,14 @@ boolean parseaConfiguracionWifi(String contenido)
 
 boolean inicializaWifi(boolean debug)
   {
+  //cargo el valores por defecto
+  wifiIP=IPAddress(0,0,0,0);
+  wifiGW=IPAddress(0,0,0,0);
+  wifiNet=IPAddress(0,0,0,0);
+  wifiDNS1=IPAddress(0,0,0,0);
+  wifiDNS2=IPAddress(0,0,0,0);
+  mDNS=NOMBRE_mDNS_CONFIG;
+      
   //Desconecto si esta conectado
   WiFi.disconnect(true);//(false);   
   //No reconecta a la ultima WiFi que se conecto
@@ -164,7 +164,7 @@ boolean inicializaWifi(boolean debug)
       else Serial.printf("No hay IP fija\n");
 
       //Inicializo mDNS para localizar el dispositivo
-      inicializamDNS(nombre_dispositivo.c_str());
+      inicializamDNS(mDNS.c_str());//nombre_dispositivo.c_str()); 
   
       Serial.printf("------------------------WiFi conectada (configuracion almacenada)--------------------------------------\n");
       Serial.printf("WiFi conectada. IP: %s\n",WiFi.localIP().toString().c_str());
@@ -228,7 +228,7 @@ boolean conectaAutodetect(boolean debug)
   //if (wifiIP!=IPAddress(0,0,0,0)) wifiManager.setSTAStaticIPConfig(wifiIP,wifiGW,wifiNet);//Preparo la IP fija (IPAddress ip, IPAddress gw, IPAddress sn) 
 
   //Inicializo mDNS para localizar la base
-  inicializamDNS(NOMBRE_mDNS_CONFIG);
+  inicializamDNS(NULL);//NOMBRE_mDNS_CONFIG);   
   
   if (!wifiManager.startConfigPortal(NOMBRE_AP)) Serial.printf("Error al conectar. Salida por time-out\n");      
   else 

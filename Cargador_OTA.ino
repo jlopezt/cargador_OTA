@@ -11,7 +11,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA   "OTA Loader"
-#define VERSION          "1.0.0"
+#define VERSION          "1.1.0"
 #define SEPARADOR        '|'
 #define SUBSEPARADOR     '#'
 #define KO               -1
@@ -29,7 +29,8 @@
 #define FRECUENCIA_OTA            5 //cada cuantas vueltas de loop atiende las acciones
 #define FRECUENCIA_SERVIDOR_WEB   1 //cada cuantas vueltas de loop atiende el servidor web
 
-#define LED_BUILTIN                2 //GPIO del led de la placa en los ESP32   
+//#define LED_BUILTIN                2 //GPIO del led de la placa en los ESP32   
+#define LED_BUILTIN                4 //GPIO del led de la placa en los ESP32-CAM   
 /***************************** Defines *****************************/
 
 /***************************** Includes *****************************/

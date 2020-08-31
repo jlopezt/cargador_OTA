@@ -19,7 +19,7 @@ WebServer server(PUERTO_WEBSERVER);
 
 //Cadenas HTML precargadas
 String cabeceraHTML="";//<HTML><HEAD><TITLE>" + nombre_dispositivo + "</TITLE></HEAD><BODY>";
-String enlaces="<TABLE>\n<CAPTION>Enlaces</CAPTION>\n<TR><TD><a href=\"info\" target=\"_self\">Info</a></TD></TR>\n<TR><TD><a href=\"test\" target=\"_self\">Test</a></TD></TR>\n<TR><TD><a href=\"restart\" target=\"_self\">Restart</a></TD></TR>\n<TR><TD><a href=\"particiones\" target=\"_self\">Particiones</a></TD></TR>\n<TR><TD><a href=\"listaFicheros\" target=\"_self\">Lista ficheros</a></TD></TR>\n<TR><TD><a href=\"estado\" target=\"_self\">Estado</a></TD></TR>\n<TR><TD><a href=\"estadoSalidas\" target=\"_self\">Estado salidas</a></TD></TR>\n<TR><TD><a href=\"estadoEntradas\" target=\"_self\">Estado entradas</a></TD></TR>\n<TR><TD><a href=\"planes\" target=\"_self\">Planes del secuenciador</a></TD></TR></TABLE>\n"; 
+String enlaces="<TABLE>\n<CAPTION>Enlaces</CAPTION>\n<TR><TD><a href=\"info\" target=\"_self\">Info</a></TD></TR>\n<TR><TD><a href=\"test\" target=\"_self\">Test</a></TD></TR>\n<TR><TD><a href=\"restart\" target=\"_self\">Restart</a></TD></TR>\n<TR><TD><a href=\"particiones\" target=\"_self\">Particiones</a></TD></TR>\n<TR><TD><a href=\"listaFicheros\" target=\"_self\">Lista ficheros</a></TD></TR>\n</TABLE>\n"; 
 String pieHTML="</BODY></HTML>";
 
 /*********************************** Inicializacion y configuracion *****************************************************************/
@@ -182,12 +182,13 @@ void handleSetNextBoot(void)
 
   if(server.hasArg("p")) //si existen esos argumentos
     {
-    if(setParticionProximoArranque(server.arg("p"))) cad += "EXITO";
+    if(setParticionProximoArranque(server.arg("p"))) handleParticiones();  //cad += "EXITO";
     else cad += "FRACASO";
     }
 
   cad += pieHTML;
-  server.send(200, "text/html", cad);     
+  server.send(200, "text/html", cad);   
+  
   }
 
 /*********************************************/
