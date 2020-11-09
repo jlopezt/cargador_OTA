@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function(event)
   var baseHost = document.location.origin;
   var streamUrl = baseHost + ":81";
   const WS_URL = "ws://" + window.location.host + ":88";
-  //var ws = new WebSocket(WS_URL);
+  var ws;// = new WebSocket(WS_URL);
 
   const view = document.getElementById("stream"); //la imagen
   const viewfoto = document.getElementById("foto"); //Imagen para foto
@@ -237,21 +237,26 @@ document.addEventListener("DOMContentLoaded", function(event)
 
   var flagFoto=false;
 
-  var myVar =setInterval(connect, 5000);
+  var myVar =setInterval(reconnect, 5000);
 
-  function connect()
+  function reconnect()
     {
-    /*
+    console.log("Evaluando reconexion...");  
+
+    /*readyState
     0	CONNECTING	Socket has been created. The connection is not yet open.
     1	OPEN	The connection is open and ready to communicate.
     2	CLOSING	The connection is in the process of closing.
     3	CLOSED	The connection is closed or couldn't be opened.
     */  
-    console.log("Evaluando reconexion...");  
     if(ws.readyState<2) return;
-
     console.log(`Reconectando a  ${WS_URL}`);
-    var ws = new WebSocket(WS_URL);
+    connect();
+    }
+
+  function connect()
+    {
+    ws = new WebSocket(WS_URL);
 
     ws.onopen = () => 
       {
@@ -285,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function(event)
         console.log('se han recibido datos binarios');
         if(flagFoto==true)
           {       
-          console.log('¡¡¡Es una foto!!!');
+          console.log('Â¡Â¡Â¡Es una foto!!!');
           flagFoto=false;  
           var urlObject = URL.createObjectURL(message.data);
           viewfoto.src = urlObject;
@@ -380,5 +385,3 @@ document.addEventListener("DOMContentLoaded", function(event)
 </script>
 </body>
 </html>
-
-

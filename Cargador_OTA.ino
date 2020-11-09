@@ -29,8 +29,19 @@
 #define FRECUENCIA_OTA            5 //cada cuantas vueltas de loop atiende las acciones
 #define FRECUENCIA_SERVIDOR_WEB   1 //cada cuantas vueltas de loop atiende el servidor web
 
-//#define LED_BUILTIN                2 //GPIO del led de la placa en los ESP32   
-#define LED_BUILTIN                4 //GPIO del led de la placa en los ESP32-CAM   
+#define ESP32CAM
+
+#if defined(ESP32CAM)
+//  #define LED_BUILTIN                 33 //GPIO del led de la placa en los ESP32-CAM   
+  const int LED_BUILTIN=33;
+  const boolean ENCENDIDO=LOW;
+  const boolean APAGADO=HIGH;
+#else
+//  #define LED_BUILTIN                2 //GPIO del led de la placa en los ESP32   
+  const int LED_BUILTIN=2;
+  const boolean ENCENDIDO=HIGH;
+  const boolean APAGADO=LOW;
+#endif
 /***************************** Defines *****************************/
 
 /***************************** Includes *****************************/
@@ -49,8 +60,8 @@ int debugGlobal=0; //por defecto desabilitado
 
 /************************* FUNCIONES PARA EL BUITIN LED ***************************/
 void configuraLed(void){pinMode(LED_BUILTIN, OUTPUT);}
-void enciendeLed(void){digitalWrite(LED_BUILTIN, HIGH);}
-void apagaLed(void){digitalWrite(LED_BUILTIN, LOW);}
+void enciendeLed(void){digitalWrite(LED_BUILTIN, ENCENDIDO);}
+void apagaLed(void){digitalWrite(LED_BUILTIN, APAGADO);}
 void parpadeaLed(uint8_t veces, uint16_t espera=100)
   {
   for(uint8_t i=0;i<2*veces;i++)
@@ -100,6 +111,11 @@ void setup()
   
   parpadeaLed(2);
   apagaLed();//Por si acaso...
+
+  int *p=NULL;
+  p=(int *)ps_malloc(240*320*3);
+  if(p==NULL) Serial.println("malloc KO");
+  else Serial.println("malloc OK");
   
   Serial.printf("\n\n");
   Serial.println("***************************************************************");
