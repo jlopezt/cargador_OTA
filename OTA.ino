@@ -148,6 +148,7 @@ esp_partition_iterator_t esp_partition_next(esp_partition_iterator_t iterator);
 void esp_partition_iterator_release(esp_partition_iterator_t iterator);
 */
 
+const char cadenaHTML[] PROGMEM = "<TABLE>\n<CAPTION>Particiones de memoria</CAPTION>\n<TR><TD>Nombre</TD><TD>Tipo</TD><TD>Subtipo</TD><TD>Direccion</TD><TD>Tamaño</TD><TD>Encriptado</TD></TR>";
 String pintaParticionHTML(void)
   {
   const esp_partition_t *particion;  
@@ -155,11 +156,14 @@ String pintaParticionHTML(void)
   
   esp_partition_iterator_t iterador=esp_partition_find(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_ANY, NULL); //omito el nombre para sacar todas
 
+/*
   cad +="<TABLE>\n<CAPTION>Particiones de memoria</CAPTION>\n";
   cad += "<TR>";
   cad += "<TD>Nombre</TD><TD>Tipo</TD><TD>Subtipo</TD><TD>Direccion</TD><TD>Tamaño</TD><TD>Encriptado</TD>";
   cad += "</TR>";
-
+*/
+  cad = FPSTR(cadenaHTML);
+  
   while(iterador!=NULL)
     {
     particion=esp_partition_get(iterador);
@@ -200,7 +204,10 @@ String pintaParticionHTML(void)
   cad +="<BR>";
   cad += getParticionProximoUpdate();
   cad +="<BR>";
-  cad +="<button onclick=\"/restart\">Reinicia</button>";
+  //Boton restart
+  cad +="<form action=\"/restart\">";
+  cad +="<input type=\"submit\" value=\"Reiniciar\">";
+  cad +="</form>";
      
   esp_partition_iterator_release(iterador);  
 

@@ -13,7 +13,8 @@
 #include <WiFiMulti.h>
 #include <ESPmDNS.h>
 #include <DNSServer.h>
-#include <ESPAsyncWiFiManager.h>          //https://github.com/alanswx/ESPAsyncWiFiManager
+//#include <ESPAsyncWiFiManager.h>          //https://github.com/alanswx/ESPAsyncWiFiManager
+#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
 
 #define TRUE 1
 #define FALSE 0
@@ -192,14 +193,33 @@ boolean conectaAutodetect(boolean debug)
   {
   //WiFiManager
   //Local intialization. Once its business is done, there is no need to keep it around
-  //WiFiManager wifiManager;
-
+  WiFiManager wifiManager;
+/*
   AsyncWebServer server(80);
   DNSServer dns;
   AsyncWiFiManager wifiManager(&server,&dns);
-
+*/
   Serial.printf("\n Entrando...\n");
   
+  //IP
+  WiFiManagerParameter IPParametro("IP","IP",wifiIP.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  wifiManager.addParameter(&IPParametro);
+  //Gateway
+  WiFiManagerParameter GatewayParametro("Gateway","Gateway",wifiGW.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  wifiManager.addParameter(&GatewayParametro);
+  //Subnet
+  WiFiManagerParameter SubnetParametro("Subnet","Subnet",wifiNet.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  wifiManager.addParameter(&SubnetParametro);
+  //DNS1
+  WiFiManagerParameter DNS1Parametro("DNS1","DNS1",wifiDNS1.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  wifiManager.addParameter(&DNS1Parametro);
+  //DNS2
+  WiFiManagerParameter DNS2Parametro("DNS2","DNS2",wifiDNS2.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  wifiManager.addParameter(&DNS2Parametro);
+  //mDNS name
+  WiFiManagerParameter mDNSParametro("mDNS","mDNS",mDNS.c_str(),15+1);//,"Nombre del dispositivo");  
+  wifiManager.addParameter(&mDNSParametro);
+/*
   //IP
   AsyncWiFiManagerParameter IPParametro("IP","IP",wifiIP.toString().c_str(),15+1);//,"Nombre del dispositivo");
   wifiManager.addParameter(&IPParametro);
@@ -218,7 +238,7 @@ boolean conectaAutodetect(boolean debug)
   //mDNS name
   AsyncWiFiManagerParameter mDNSParametro("mDNS","mDNS",mDNS.c_str(),15+1);//,"Nombre del dispositivo");  
   wifiManager.addParameter(&mDNSParametro);
-  
+  */
   //preparo la llamada a la funcion para salvar configuracion, 
   //wifiManager.setSaveConfigCallback(miSaveConfigCallback);//Preparo la funcion para salvar la configuracion
   //wifiManager.setAPCallback(miAPCallback);//llamada cuando se actie el portal de configuracion
