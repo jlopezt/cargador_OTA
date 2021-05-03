@@ -18,9 +18,13 @@ Informacion del Hw del sistema http://IP/info
 WebServer server(PUERTO_WEBSERVER);
 
 //Cadenas HTML precargadas
-String cabeceraHTML="";//<HTML><HEAD><TITLE>" + nombre_dispositivo + "</TITLE></HEAD><BODY>";
+String cabeceraHTML="";
+/*
 String enlaces="<TABLE>\n<CAPTION>Enlaces</CAPTION>\n<TR><TD><a href=\"info\" target=\"_self\">Info</a></TD></TR>\n<TR><TD><a href=\"test\" target=\"_self\">Test</a></TD></TR>\n<TR><TD><a href=\"restart\" target=\"_self\">Restart</a></TD></TR>\n<TR><TD><a href=\"particiones\" target=\"_self\">Particiones</a></TD></TR>\n<TR><TD><a href=\"listaFicheros\" target=\"_self\">Lista ficheros</a></TD></TR>\n</TABLE>\n"; 
 String pieHTML="</BODY></HTML>";
+*/
+const char enlaces[] PROGMEM ="<TABLE>\n<CAPTION>Enlaces</CAPTION>\n<TR><TD><a href=\"info\" target=\"_self\">Info</a></TD></TR>\n<TR><TD><a href=\"test\" target=\"_self\">Test</a></TD></TR>\n<TR><TD><a href=\"restart\" target=\"_self\">Restart</a></TD></TR>\n<TR><TD><a href=\"particiones\" target=\"_self\">Particiones</a></TD></TR>\n<TR><TD><a href=\"listaFicheros\" target=\"_self\">Lista ficheros</a></TD></TR>\n</TABLE>\n"; 
+const char pieHTML[] PROGMEM ="</BODY></HTML>";
 
 /*********************************** Inicializacion y configuracion *****************************************************************/
 void inicializaWebServer(void)
@@ -79,7 +83,7 @@ void handleRoot()
 
   //Enlaces
   cad += "<BR><BR>\n";
-  cad += enlaces;
+  cad += FPSTR(enlaces);
   cad += "<BR><BR>" + nombre_dispositivo + " . Version " + String(VERSION) + ".";
 
   server.send(200, "text/html", cad);
@@ -98,7 +102,7 @@ void handleRestart(void)
   cad += cabeceraHTML;
   
   cad += "Reiniciando...<br>";
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
     
   server.send(200, "text/html", cad);     
   delay(100);
@@ -151,7 +155,7 @@ void handleInfo(void)
   cad += "<BR>";  
   cad += "-----------------------------------------------<BR>";  
   
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
   server.send(200, "text/html", cad);     
   }
 
@@ -167,7 +171,7 @@ void handleParticiones(void)
 
   cad +=pintaParticionHTML();
 
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
   server.send(200, "text/html", cad);     
   }
 
@@ -186,7 +190,7 @@ void handleSetNextBoot(void)
     else cad += "FRACASO";
     }
 
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
   server.send(200, "text/html", cad);   
   
   }
@@ -216,7 +220,7 @@ void handleCreaFichero(void)
     }
   else cad += "Falta el argumento <nombre de fichero>"; 
 
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
   server.send(200, "text/html", cad); 
   }
 
@@ -243,7 +247,7 @@ void handleBorraFichero(void)
     }
   else cad += "Falta el argumento <nombre de fichero>"; 
 
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
   server.send(200, "text/html", cad); 
   }
 
@@ -278,7 +282,7 @@ void handleLeeFichero(void)
     }
   else cad += "Falta el argumento <nombre de fichero>"; 
 
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
   server.send(200, "text/html", cad); 
   }
 
@@ -364,7 +368,7 @@ void handleManageFichero(void)
     }
   else cad += "Falta el argumento <nombre de fichero>"; 
 
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
   server.send(200, "text/html", cad); 
   }
 
@@ -433,6 +437,6 @@ void handleListaFicheros(void)
     }
   else cad += "<TR><TD>No se pudo recuperar la lista de ficheros</TD></TR>"; 
 
-  cad += pieHTML;
+  cad += FPSTR(pieHTML);
   server.send(200, "text/html", cad); 
   }

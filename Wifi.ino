@@ -11,9 +11,13 @@
 //needed for library
 #include <WiFi.h> 
 #include <WiFiMulti.h>
-#include <ESPmDNS.h>
 #include <DNSServer.h>
-#include <ESPAsyncWiFiManager.h>          //https://github.com/alanswx/ESPAsyncWiFiManager
+#include <WiFiManager.h> //https://github.com/zhouhan0126/WIFIMANAGER-ESP32
+
+#undef USA_mDNS
+#if defined(USA_mDNS)
+  #include <ESPmDNS.h>
+#endif
 
 #define TRUE 1
 #define FALSE 0
@@ -36,6 +40,7 @@ WiFiMulti MiWiFiMulti;
 
 boolean conectado=false; //Si el portal de configuracion devolvio OK a la conexion
 
+#if defined(USA_mDNS)
 boolean inicializamDNS(const char *nombre)
   {  
   String mDNSnombre;
@@ -54,6 +59,7 @@ boolean inicializamDNS(const char *nombre)
 
   return false;    
   }  
+#endif
 
 void salvaConfiguracion(void)
   {
@@ -163,9 +169,11 @@ boolean inicializaWifi(boolean debug)
         }
       else Serial.printf("No hay IP fija\n");
 
+#if defined(USA_mDNS)
       //Inicializo mDNS para localizar el dispositivo
       inicializamDNS(mDNS.c_str());//nombre_dispositivo.c_str()); 
-  
+#endif
+
       Serial.printf("------------------------WiFi conectada (configuracion almacenada)--------------------------------------\n");
       Serial.printf("WiFi conectada. IP: %s\n",WiFi.localIP().toString().c_str());
       WiFi.printDiag(Serial);
@@ -192,33 +200,29 @@ boolean conectaAutodetect(boolean debug)
   {
   //WiFiManager
   //Local intialization. Once its business is done, there is no need to keep it around
-  //WiFiManager wifiManager;
-
-  AsyncWebServer server(80);
-  DNSServer dns;
-  AsyncWiFiManager wifiManager(&server,&dns);
+  WiFiManager wifiManager;
 
   Serial.printf("\n Entrando...\n");
   
   //IP
-  AsyncWiFiManagerParameter IPParametro("IP","IP",wifiIP.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  WiFiManagerParameter IPParametro("IP","IP",wifiIP.toString().c_str(),15+1);//,"Nombre del dispositivo");
   wifiManager.addParameter(&IPParametro);
   //Gateway
-  AsyncWiFiManagerParameter GatewayParametro("Gateway","Gateway",wifiGW.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  WiFiManagerParameter GatewayParametro("Gateway","Gateway",wifiGW.toString().c_str(),15+1);//,"Nombre del dispositivo");
   wifiManager.addParameter(&GatewayParametro);
   //Subnet
-  AsyncWiFiManagerParameter SubnetParametro("Subnet","Subnet",wifiNet.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  WiFiManagerParameter SubnetParametro("Subnet","Subnet",wifiNet.toString().c_str(),15+1);//,"Nombre del dispositivo");
   wifiManager.addParameter(&SubnetParametro);
   //DNS1
-  AsyncWiFiManagerParameter DNS1Parametro("DNS1","DNS1",wifiDNS1.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  WiFiManagerParameter DNS1Parametro("DNS1","DNS1",wifiDNS1.toString().c_str(),15+1);//,"Nombre del dispositivo");
   wifiManager.addParameter(&DNS1Parametro);
   //DNS2
-  AsyncWiFiManagerParameter DNS2Parametro("DNS2","DNS2",wifiDNS2.toString().c_str(),15+1);//,"Nombre del dispositivo");
+  WiFiManagerParameter DNS2Parametro("DNS2","DNS2",wifiDNS2.toString().c_str(),15+1);//,"Nombre del dispositivo");
   wifiManager.addParameter(&DNS2Parametro);
   //mDNS name
-  AsyncWiFiManagerParameter mDNSParametro("mDNS","mDNS",mDNS.c_str(),15+1);//,"Nombre del dispositivo");  
+  WiFiManagerParameter mDNSParametro("mDNS","mDNS",mDNS.c_str(),15+1);//,"Nombre del dispositivo");  
   wifiManager.addParameter(&mDNSParametro);
-  
+
   //preparo la llamada a la funcion para salvar configuracion, 
   //wifiManager.setSaveConfigCallback(miSaveConfigCallback);//Preparo la funcion para salvar la configuracion
   //wifiManager.setAPCallback(miAPCallback);//llamada cuando se actie el portal de configuracion
@@ -227,9 +231,11 @@ boolean conectaAutodetect(boolean debug)
   //Si se ha configurado IP fija
   //if (wifiIP!=IPAddress(0,0,0,0)) wifiManager.setSTAStaticIPConfig(wifiIP,wifiGW,wifiNet);//Preparo la IP fija (IPAddress ip, IPAddress gw, IPAddress sn) 
 
+#if defined(USA_mDNS)
   //Inicializo mDNS para localizar la base
   inicializamDNS(NULL);//NOMBRE_mDNS_CONFIG);   
-  
+#endif
+
   if (!wifiManager.startConfigPortal(NOMBRE_AP)) Serial.printf("Error al conectar. Salida por time-out\n");      
   else 
     {

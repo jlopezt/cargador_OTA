@@ -32,10 +32,17 @@
 #define ESP32CAM
 
 #if defined(ESP32CAM)
-//  #define LED_BUILTIN                 33 //GPIO del led de la placa en los ESP32-CAM   
-  const int LED_BUILTIN=33;
-  const boolean ENCENDIDO=LOW;
+  #define LED_BUILTIN                 33 //GPIO del led de la placa en los ESP32-CAM   
+  //const int LED_BUILTIN=25;
+//Para ESP32 y ESP-CAM
+/*
+  const boolean ENCENDIDO=LOW;  
   const boolean APAGADO=HIGH;
+  */
+//Para Heltec WiFi LORA 32 V2  
+  const boolean ENCENDIDO=HIGH;  
+  const boolean APAGADO=LOW;
+
 #else
 //  #define LED_BUILTIN                2 //GPIO del led de la placa en los ESP32   
   const int LED_BUILTIN=2;
@@ -45,10 +52,8 @@
 /***************************** Defines *****************************/
 
 /***************************** Includes *****************************/
-#include <WebSocketsServer.h>
 #include <ArduinoOTA.h>
 #include <ArduinoJson.h>
-//#include <rom/rtc.h> //<esp32/rom/rtc.h>
 /***************************** Includes *****************************/
 
 /***************************** variables globales *****************************/
@@ -80,12 +85,9 @@ void setup()
   enciendeLed();
   
   Serial.printf("\n\n\n");
-  Serial.printf("*************** %s ***************\n",NOMBRE_FAMILIA);
-  Serial.printf("*************** %s ***************\n",VERSION);
+  Serial.printf("*************** %s/%s ***************\n",NOMBRE_FAMILIA,VERSION);
   Serial.println("***************************************************************");
-  Serial.println("*                                                             *");
   Serial.println("*             Inicio del setup del modulo                     *");
-  Serial.println("*                                                             *");    
   Serial.println("***************************************************************");
 
   Serial.printf("\n\nInit Ficheros ---------------------------------------------------------------------\n");
@@ -112,16 +114,9 @@ void setup()
   parpadeaLed(2);
   apagaLed();//Por si acaso...
 
-  int *p=NULL;
-  p=(int *)ps_malloc(240*320*3);
-  if(p==NULL) Serial.println("malloc KO");
-  else Serial.println("malloc OK");
-  
   Serial.printf("\n\n");
   Serial.println("***************************************************************");
-  Serial.println("*                                                             *");
   Serial.println("*               Fin del setup del modulo                      *");
-  Serial.println("*                                                             *");    
   Serial.println("***************************************************************");
   Serial.printf("\n\n");  
   }  
