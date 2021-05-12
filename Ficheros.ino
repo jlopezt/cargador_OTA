@@ -75,7 +75,7 @@ boolean leeFichero(String nombre, String &contenido)
 boolean salvaFichero(String nombreFichero, String nombreFicheroBak, String contenidoFichero)
   {
   boolean salvado=false;
-
+/*
   //file exists, reading and loading
   if(SPIFFS.exists(nombreFichero.c_str())) 
     {
@@ -88,7 +88,7 @@ boolean salvaFichero(String nombreFichero, String nombreFicheroBak, String conte
       }
     else Serial.printf("El fichero %s ya existe, sera sobreescrito.\n",nombreFichero.c_str());
     }
-
+*/
   Serial.print("Nombre fichero: ");
   Serial.println(nombreFichero.c_str());
   Serial.print("Contenido fichero: ");

@@ -93,12 +93,15 @@ void setup()
   Serial.printf("\n\nInit Ficheros ---------------------------------------------------------------------\n");
   //Ficheros - Lo primero para poder leer los demas ficheros de configuracion
   inicializaFicheros(debugGlobal);
-
+  String cad;
+  if(listaFicheros(cad)) Serial.printf("Lista de ficheros:\n%s\n",cad.c_str());
+  else Serial.printf("No se pudo recuperar la lista deficheros\n");
+  
   //Wifi
   Serial.println("\n\nInit WiFi -----------------------------------------------------------------------\n");
   if (inicializaWifi(1))//debugGlobal)) No tiene sentido debugGlobal, no hay manera de activarlo
     {
-    parpadeaLed(5,200);
+    parpadeaLed(5,200);    
     /*----------------Inicializaciones que necesitan red-------------*/
     //OTA
     Serial.println("\n\nInit OTA ------------------------------------------------------------------------\n");

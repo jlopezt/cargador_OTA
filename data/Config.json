@@ -1,12 +1,4 @@
 {
-	"Xnombre_dispositivo": "Camara puerta",
-	"XNivelActivo":0,
-	
-	"nombre_dispositivo": "LoRAMetro",
-	"xtipoSensorTemperatura": "HDC1080", 
-	"tipoSensorTemperatura": "DS18B20", 
-	"xtipoSensorHumedad": "HDC1080",
-	"tipoSensorHumedad": "DHT22",
-	"xtipoSensorLuz": "BH1750",
-	"tipoSensorLuz": "GL5539"		
+	"nombre_dispositivo": "Camara puerta",
+	"NivelActivo":0
 }

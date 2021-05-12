@@ -11,7 +11,7 @@
 //needed for library
 #include <WiFi.h> 
 #include <WiFiMulti.h>
-#include <DNSServer.h>
+//#include <DNSServer.h>
 #include <WiFiManager.h> //https://github.com/zhouhan0126/WIFIMANAGER-ESP32
 
 #undef USA_mDNS
@@ -66,7 +66,7 @@ void salvaConfiguracion(void)
   String cad="";
   
   Serial.printf("---------------------Salvando configuracion---------------\n");
-  Serial.printf("Valores que voy a salvar:\nSSID : %s | Password : $s\n",WiFi.SSID().c_str(),WiFi.psk().c_str());
+  Serial.printf("Valores que voy a salvar:\nSSID : %s | Password : %s\n",WiFi.SSID().c_str(),WiFi.psk().c_str());
 
   if(!leeFichero(WIFI_CONFIG_FILE, cad)) Serial.printf("No se pudo leer el fichero\n");
   cad=generaJsonConfiguracionWifi(cad, WiFi.SSID(),WiFi.psk());
@@ -85,22 +85,51 @@ boolean recuperaDatosWiFi(boolean debug)
   String cad="";
   if (debug) Serial.printf("Recupero configuracion de archivo...\n");
 
-  if(!leeFichero(WIFI_CONFIG_FILE, cad)) 
+  if(leeFichero(WIFI_CONFIG_FILE, cad)) 
     {
-    //Confgiguracion por defecto
-    Serial.printf("No existe fichero de configuracion WiFi o no es valido\n");
-    //cad="{\"wifi\": [ {\"ssid\": \"BASE0\" ,\"password\": \"11223344556677889900abcdef\"}, {\"ssid\": \"BASE1\" ,\"password\": \"11223344556677889900abcdef\"}, {\"ssid\": \"BASE2\" ,\"password\": \"11223344556677889900abcdef\"}, {\"ssid\": \"BASE-1\",\"password\": \"11223344556677889900abcdef\"}]}";
-    //cad="{\"mDNS\":\"actuador\",\"wifiIP\":\"0.0.0.0\",   \"wifiGW\":\"0.0.0.0\",  \"wifiNet\": \"0.0.0.0\",   \"wifiDNS1\":\"0.0.0.0\",\"wifiDNS2\":\"0.0.0.0\",\"wifi\": []}";
-    //if(salvaFicheroConfig(WIFI_CONFIG_FILE, WIFI_CONFIG_BAK_FILE, cad)) Serial.printf("Fichero de configuracion WiFi creado por defecto\n");
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& json = jsonBuffer.parseObject(cad.c_str());
+    if (json.success()) 
+      {
+      Serial.printf("\nparsed json\n");
+  //******************************Parte especifica del json a leer********************************
+      if (json.containsKey("wifiIP")) wifiIP.fromString((const char *)json["wifiIP"]); 
+      if (json.containsKey("wifiGW")) wifiGW.fromString((const char *)json["wifiGW"]);
+      if (json.containsKey("wifiNet")) wifiNet.fromString((const char *)json["wifiNet"]); 
+      if (json.containsKey("wifiDNS1")) wifiDNS1.fromString((const char *)json["wifiDNS1"]);
+      if (json.containsKey("wifiDNS2")) wifiDNS2.fromString((const char *)json["wifiDNS2"]);
+      if (json.containsKey("mDNS")) mDNS=String((const char *)json["mDNS"]);
+      
+      Serial.printf("Configuracion leida:\nmDNS: %s\nIP actuador: %s\nIP Gateway: %s\nIPSubred: %s\nIP DNS1: %s\nIP DNS2: %s\n",mDNS.c_str(),wifiIP.toString().c_str(),wifiGW.toString().c_str(),wifiNet.toString().c_str(),wifiDNS1.toString().c_str(),wifiDNS2.toString().c_str());    
+  
+      if (!json.containsKey("wifi")) return false;
+      
+      JsonArray& wifi = json["wifi"];
+      if(wifi.size()==0) return false;
+          
+      for(uint8_t i=0;i<wifi.size();i++)
+        {
+        const char* wifi_ssid = wifi[i]["ssid"];
+        const char* wifi_password = wifi[i]["password"];
+        MiWiFiMulti.addAP(wifi_ssid , wifi_password);
+        Serial.printf("Red *%s* añadida.\n",wifi_ssid);
+        }//del for
+  //************************************************************************************************
+      return true;
+      }
+    return false;      
     }
 
-  return(parseaConfiguracionWifi(cad));
+  //Confgiguracion por defecto
+  Serial.printf("No existe fichero de configuracion WiFi o no es valido\n");
+  return false;
+//  return(parseaConfiguracionWifi(cad));
   }
 
 /*********************************************/
 /* Parsea el json leido del fichero de       */
 /* configuracio Wifi                         */
-/*********************************************/
+/*********************************************
 boolean parseaConfiguracionWifi(String contenido)
   {  
   DynamicJsonBuffer jsonBuffer;
@@ -135,15 +164,16 @@ boolean parseaConfiguracionWifi(String contenido)
     }
   return false;
   }
+*/
 
 boolean inicializaWifi(boolean debug)
   {
   //cargo el valores por defecto
-  wifiIP=IPAddress(0,0,0,0);
-  wifiGW=IPAddress(0,0,0,0);
-  wifiNet=IPAddress(0,0,0,0);
-  wifiDNS1=IPAddress(0,0,0,0);
-  wifiDNS2=IPAddress(0,0,0,0);
+  wifiIP=IPAddress(10,68,0,0);
+  wifiGW=IPAddress(10,68,1,1);
+  wifiNet=IPAddress(255,255,0,0);
+  wifiDNS1=IPAddress(8,8,8,8);
+  wifiDNS2=IPAddress(4,4,4,4);
   mDNS=NOMBRE_mDNS_CONFIG;
       
   //Desconecto si esta conectado
@@ -245,13 +275,13 @@ boolean conectaAutodetect(boolean debug)
     wifiDNS1.fromString(String(DNS1Parametro.getValue()));
     wifiDNS2.fromString(String(DNS2Parametro.getValue()));
     mDNS=String(mDNSParametro.getValue()); //Serial.printf("longitud mDNS: %i\n",mDNSParametro.getValueLength());  
-    Serial.printf("Datos leidos del portal: \n IP fija-> %s\n GW-> %s\n subnet-> %s\n DNS1-> %s\n DNS2-> %s\n",wifiIP.toString().c_str(), wifiGW.toString().c_str(), wifiNet.toString().c_str(), wifiDNS1.toString().c_str(), wifiDNS2.toString().c_str());
+    //Serial.printf("Datos leidos del portal: \n IP fija-> %s\n GW-> %s\n subnet-> %s\n DNS1-> %s\n DNS2-> %s\n",wifiIP.toString().c_str(), wifiGW.toString().c_str(), wifiNet.toString().c_str(), wifiDNS1.toString().c_str(), wifiDNS2.toString().c_str());
 
     salvaConfiguracion();
-    Serial.printf("Configuracion finalizada correctamente.\n Reinciando...\n");
+    //Serial.printf("Configuracion finalizada correctamente.\n Reinciando...\n");
     }
   
-  ESP.restart();
+  //ESP.restart();
   return true;
   }
 

@@ -58,6 +58,7 @@ void erroresOTA(ota_error_t error)
   else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
   else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
   else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  
   }
 
  boolean iniializaOTA(boolean debug)
@@ -156,12 +157,6 @@ String pintaParticionHTML(void)
   
   esp_partition_iterator_t iterador=esp_partition_find(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_ANY, NULL); //omito el nombre para sacar todas
 
-/*
-  cad +="<TABLE>\n<CAPTION>Particiones de memoria</CAPTION>\n";
-  cad += "<TR>";
-  cad += "<TD>Nombre</TD><TD>Tipo</TD><TD>Subtipo</TD><TD>Direccion</TD><TD>Tamaño</TD><TD>Encriptado</TD>";
-  cad += "</TR>";
-*/
   cad = FPSTR(cadenaHTML);
   
   while(iterador!=NULL)
@@ -214,6 +209,46 @@ String pintaParticionHTML(void)
   return(cad);
   }
 
+String getParticionProximoUpdate(void)
+  {
+  const esp_partition_t *particion=esp_ota_get_next_update_partition(NULL);
+
+  String cad="Particion proximo update:\n";
+  cad +=particion->label;
+  
+  return cad;
+  }
+
+String getParticionEjecucion(void)
+  {
+  const esp_partition_t *particion=esp_ota_get_running_partition();
+
+  String cad="Particion en ejecucion:\n";
+  cad +=particion->label;
+  
+  return cad;
+  }
+
+String getParticionProximoArranque(void)
+  {
+  const esp_partition_t *particion=esp_ota_get_boot_partition();
+  String cad="Particion del proximo arranque:\n";
+  cad +=particion->label;
+  
+  return cad;
+  }
+
+boolean setParticionProximoArranque(String nombre)
+  {
+  esp_partition_iterator_t iterador=esp_partition_find(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_ANY,nombre.c_str()); 
+  const esp_partition_t *particion=esp_partition_get(iterador);
+  esp_partition_iterator_release(iterador);  
+
+  if(esp_ota_set_boot_partition(particion)==ESP_OK) return true;
+  return false;
+  }
+
+ /*
 String leeParticiones(void)
   {
   const esp_partition_t *particion;  
@@ -253,43 +288,4 @@ String leeParticiones(void)
 
   return(cad);
   }
-  
-String getParticionProximoUpdate(void)
-  {
-  const esp_partition_t *particion=esp_ota_get_next_update_partition(NULL);
-
-  String cad="Particion proximo update:\n";
-  cad +=particion->label;
-  
-  return cad;
-  }
-
-String getParticionEjecucion(void)
-  {
-  const esp_partition_t *particion=esp_ota_get_running_partition();
-
-  String cad="Particion en ejecucion:\n";
-  cad +=particion->label;
-  
-  return cad;
-  }
-
-String getParticionProximoArranque(void)
-  {
-  const esp_partition_t *particion=esp_ota_get_boot_partition();
-  String cad="Particion del proximo arranque:\n";
-  cad +=particion->label;
-  
-  return cad;
-  }
-
-boolean setParticionProximoArranque(String nombre)
-  {
-  esp_partition_iterator_t iterador=esp_partition_find(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_ANY,nombre.c_str()); 
-  const esp_partition_t *particion=esp_partition_get(iterador);
-  esp_partition_iterator_release(iterador);  
-
-  if(esp_ota_set_boot_partition(particion)==ESP_OK) return true;
-  return false;
-  }
-  
+*/  
