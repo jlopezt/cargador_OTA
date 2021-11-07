@@ -100,7 +100,7 @@ boolean recuperaDatosWiFi(boolean debug)
       if (json.containsKey("wifiDNS2")) wifiDNS2.fromString((const char *)json["wifiDNS2"]);
       if (json.containsKey("mDNS")) mDNS=String((const char *)json["mDNS"]);
       
-      Serial.printf("Configuracion leida:\nmDNS: %s\nIP actuador: %s\nIP Gateway: %s\nIPSubred: %s\nIP DNS1: %s\nIP DNS2: %s\n",mDNS.c_str(),wifiIP.toString().c_str(),wifiGW.toString().c_str(),wifiNet.toString().c_str(),wifiDNS1.toString().c_str(),wifiDNS2.toString().c_str());    
+      Serial.printf("Configuracion leida:\nmDNS: %s\nIP dispositivo: %s\nIP Gateway: %s\nIPSubred: %s\nIP DNS1: %s\nIP DNS2: %s\n",mDNS.c_str(),wifiIP.toString().c_str(),wifiGW.toString().c_str(),wifiNet.toString().c_str(),wifiDNS1.toString().c_str(),wifiDNS2.toString().c_str());    
   
       if (!json.containsKey("wifi")) return false;
       
@@ -184,6 +184,7 @@ boolean inicializaWifi(boolean debug)
   WiFi.setAutoReconnect(true);   
   //Activo el modo solo estacion, no access point
   WiFi.mode(WIFI_OFF);
+  delay(1000);
   WiFi.mode(WIFI_STA);
 
   if(recuperaDatosWiFi(debug))
@@ -266,7 +267,11 @@ boolean conectaAutodetect(boolean debug)
   inicializamDNS(NULL);//NOMBRE_mDNS_CONFIG);   
 #endif
 
-  if (!wifiManager.startConfigPortal(NOMBRE_AP)) Serial.printf("Error al conectar. Salida por time-out\n");      
+  if (!wifiManager.startConfigPortal(NOMBRE_AP)) 
+    {
+    Serial.printf("Error al conectar. Salida por time-out\n");      
+    return false;
+    }
   else 
     {
     wifiIP.fromString(String(IPParametro.getValue()));
@@ -289,6 +294,8 @@ boolean conectaMultibase(boolean debug)
   {
   // wait for WiFi connection
   int time_out=0;
+  Serial.printf("Conectando con SSID: [%s]\n",WiFi.SSID());
+  
   while(MiWiFiMulti.run()!=WL_CONNECTED)
     {
     Serial.printf("(Multi) Conectando Wifi...\n");

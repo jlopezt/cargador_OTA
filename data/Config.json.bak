@@ -1,13 +1,12 @@
 {
 	"nombre_dispositivo": "LoRAMetro",
-	"tipoSensorTemperaturaAire": "HDC1080", 
-	"xtipoSensorTemperaturaAire": "DS18B20", 
+	"tipoSensorTemperatura": "HDC1080", 
+	"xtipoSensorTemperatura": "DS18B20", 
 	"tipoSensorHumedad": "HDC1080",
 	"xtipoSensorHumedad": "DHT22",
 	"tipoSensorLuz": "BH1750",
 	"xtipoSensorLuz": "GL5539",
 	"tipoSensorPresion": "BME280",
 	"tipoSensorAltitud": "BME280",
-	"tipoSensorTemperaturaSuelo": "DS18B20", 
 	"tipoSensorHumedadSuelo": "SOILMOISTUREV2"
 }

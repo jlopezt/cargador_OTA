@@ -29,7 +29,8 @@
 #define FRECUENCIA_OTA            5 //cada cuantas vueltas de loop atiende las acciones
 #define FRECUENCIA_SERVIDOR_WEB   1 //cada cuantas vueltas de loop atiende el servidor web
 
-#define ESP32CAM
+//#define ESP32CAM
+#define HELTEC_WIFI_LORA_V2
 
 #if defined(ESP32CAM)
   #define LED_BUILTIN                 33 //GPIO del led de la placa en los ESP32-CAM   
@@ -39,7 +40,9 @@
   const boolean ENCENDIDO=LOW;  
   const boolean APAGADO=HIGH;
   */
+#elif defined(HELTEC_WIFI_LORA_V2)
 //Para Heltec WiFi LORA 32 V2  
+  #define LED_BUILTIN                 25 //GPIO del led de la placa en los Heltec WiFi LORA v2
   const boolean ENCENDIDO=HIGH;  
   const boolean APAGADO=LOW;
 
@@ -57,7 +60,6 @@
 /***************************** Includes *****************************/
 
 /***************************** variables globales *****************************/
-//Indica si el rele se activa con HIGH o LOW
 String nombre_dispositivo="Loader";//(NOMBRE_FAMILIA);//Nombre del dispositivo, por defecto el de la familia
 uint16_t vuelta = MAX_VUELTAS-100;//0; //vueltas de loop
 int debugGlobal=0; //por defecto desabilitado
